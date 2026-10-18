@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>妄欲 · 契约之书</title>
+<style>
+  *{ box-sizing: border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    overflow:hidden;
+    background:#050203;
+    font-family:"Songti SC","STSong","SimSun","Noto Serif SC",serif;
+  }
+
+  /* ================= 第一幕：字雨 ================= */
+  #act-1 {
+    position: fixed; inset: 0; z-index: 10;
+    transition: opacity 2s ease;
+  }
+  #act-1.fade-out { opacity: 0; pointer-events: none; }
+
+  .bg-image {
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url('https://i.imgs.ovh/2026/10/18/2e416a07ba729e01f2930ae6f7fb6cc1.jpg');
+    background-color: #1a0507;
+    background-size: cover; background-position: center; background-repeat: no-repeat;
+  }
+
+  .bg-overlay {
+    position: fixed; inset: 0; z-index: 1;
+    background: radial-gradient(circle at 50% 50%, rgba(15, 3, 5, 0.2) 0%, rgba(5, 1, 2, 0.85) 60%, #020001 100%);
+    pointer-events: none;
+  }
+
+  #rain{
+    position:fixed; inset:0; z-index:2;
+    overflow:hidden; pointer-events:none;
+  }
+  .drop{
+    position:absolute; top:0; white-space:nowrap; letter-spacing:1px;
+    opacity:0; animation-name:fall; animation-timing-function:linear; animation-fill-mode:forwards;
+  }
+  @keyframes fall{
+    0% { transform:translateY(-10vh); opacity:0; }
+    10% { opacity:0.7; }
+    80% { opacity:0.4; }
+    100% { transform:translateY(112vh); opacity:0; }
+  }
+
+  #center{
+    position:fixed; inset:0; z-index:5;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    pointer-events:none;
+  }
+  .char{
+    font-size:clamp(70px, 15vmin, 130px); line-height:1.05; letter-spacing:10px;
+    color:#f0e6e6;
+    text-shadow: 0 0 12px rgba(200, 30, 40, 0.9), 0 0 35px rgba(130, 10, 20, 0.8), 0 0 80px rgba(60, 0, 0, 0.9);
+    opacity:0; filter:blur(15px); transform:scale(1.15);
+    animation: appear 2s cubic-bezier(.2,.7,.3,1) forwards, pulse 6s ease-in-out infinite;
+  }
+  .char:nth-child(1){ animation-delay:0.2s, 2s; }
+  .char:nth-child(2){ animation-delay:1.2s, 3s; }
+
+  @keyframes appear{
+    0% { opacity:0; filter:blur(15px); transform:scale(1.15); }
+    70% { opacity:1; filter:blur(0); transform:scale(1.02); }
+    100% { opacity:1; filter:blur(0); transform:scale(1); }
+  }
+  @keyframes pulse{
+    0%,100%{ text-shadow: 0 0 12px rgba(200,30,40,0.8), 0 0 35px rgba(130,10,20,0.7); }
+    50%{ text-shadow: 0 0 18px rgba(255,50,60,1), 0 0 50px rgba(160,20,30,0.9), 0 0 90px rgba(80,0,0,0.9); }
+  }
+
+  /* 契约按钮 */
+  #contract-wrap {
+    position: fixed; bottom: 10vh; left: 50%; transform: translateX(-50%);
+    z-index: 15; opacity: 0; pointer-events: none; transition: opacity 2s ease;
+  }
+  #contract-wrap.show { opacity: 1; pointer-events: auto; }
+  #contract-btn {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    padding: 10px 20px; font-size: clamp(16px, 2.5vmin, 22px);
+    color: rgba(180, 60, 60, 0.8); letter-spacing: 8px; cursor: pointer;
+    user-select: none; -webkit-user-select: none; text-shadow: 0 0 10px rgba(150, 20, 20, 0.5);
+    transition: all 0.3s ease;
+  }
+  #contract-btn .part-2 { filter: blur(3.5px); margin-left: 6px; transition: filter 0.3s ease, color 0.3s ease; }
+  #contract-btn.pressing { color: rgba(255, 80, 80, 1); text-shadow: 0 0 20px rgba(255, 20, 20, 0.8), 0 0 40px rgba(150, 0, 0, 0.8); }
+  #contract-btn.pressing .part-2 { filter: blur(0.5px); }
+  #contract-btn.success { color: #fff; text-shadow: 0 0 20px #ff2020, 0 0 40px #ff0000; cursor: default; }
+  #contract-btn.success .part-2 { filter: blur(0px); }
+  .progress-bar { position: absolute; bottom: 0px; left: 0; height: 2px; background: rgba(255, 40, 40, 0.8); box-shadow: 0 0 10px red; width: 0%; }
+
+  .red-flash {
+    position: fixed; inset: 0; background: rgba(180, 0, 0, 0.4); z-index: 99;
+    pointer-events: none; opacity: 0; animation: flash 1s ease-out forwards;
+  }
+  @keyframes flash { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+  /* ================= 第二幕：书 ================= */
+  #act-2 {
+    position: fixed; inset: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 2s ease;
+    perspective: 1500px;
+    background: radial-gradient(circle at 50% 50%, rgba(20, 5, 8, 0.9) 0%, #020001 100%);
+  }
+  #act-2.show { opacity: 1; pointer-events: auto; }
+
+  .book-container {
+    position: relative;
+    width: 300px; height: 420px; max-width: 85vw; max-height: 75vh;
+    transform: translateY(50px) scale(0.95);
+    transition: transform 2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+  #act-2.show .book-container { transform: translateY(0) scale(1); }
+
+  .page {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: #0a0607; border: 1px solid #3a1518;
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.9), 0 5px 25px rgba(120, 10, 15, 0.3);
+    border-radius: 4px 10px 10px 4px; padding: 30px 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transform-origin: left center;
+    transition: transform 1.2s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow 0.5s;
+    backface-visibility: hidden; cursor: pointer; box-sizing: border-box;
+  }
+
+  .page-1 { z-index: 4; color: #d1242f; font-size: 17px; line-height: 2.2; text-align: center; text-shadow: 0 0 8px rgba(200, 20, 20, 0.7); }
+  .page-2 {
+    z-index: 3; transform: rotateY(180deg); background: #080505;
+    align-items: flex-start; justify-content: center; padding: 40px 25px;
+    opacity: 0; transition: transform 1.2s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 1s ease 0.6s;
+  }
+  .page-2.flipped { transform: rotateY(0deg); opacity: 1; }
+  .page-2 p { margin: 8px 0; color: #c4b5b5; font-size: 14px; line-height: 1.7; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; width: 100%; text-align: left; }
+  .page-2 p span { color: #a32a30; margin-right: 6px; font-weight: bold; }
+  .page-3 { z-index: 2; background: #000; border: none; box-shadow: none; cursor: default; justify-content: center; opacity: 0; transition: opacity 1s ease 0.6s; }
+  .page-3.flipped { opacity: 1; }
+  .flipped-page { transform: rotateY(-180deg) !important; box-shadow: -15px 15px 40px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,0,0,0.9); cursor: default; }
+
+  .hint { position: absolute; bottom: 20px; font-size: 12px; color: #663333; letter-spacing: 2px; animation: pulse-hint 2s infinite alternate; width: 100%; text-align: center; left: 0; }
+  @keyframes pulse-hint { 0% { opacity: 0.3; } 100% { opacity: 0.8; } }
+
+  /* 第三页：眼睛 */
+  .eye-container { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; position: relative; }
+  .glowing-eye { width: 220px; height: 150px; filter: drop-shadow(0 0 4px rgba(150, 10, 10, 0.6)) drop-shadow(0 0 10px rgba(100, 0, 0, 0.3)); }
+  .eye-white { fill: rgba(100, 0, 0, 0.08); }
+  .pupil-group { animation: eye-move 5s ease-in-out 0s forwards; }
+  @keyframes eye-move { 0% { transform: translateX(0); } 20%,40% { transform: translateX(-25px); } 60%,80% { transform: translateX(25px); } 100% { transform: translateX(0); } }
+  .reveal-text { margin-top: 25px; height: 40px; display: flex; align-items: flex-end; justify-content: center; letter-spacing: 2px; }
+  .char-you { font-size: 32px; color: #cc1a1a; font-weight: bold; opacity: 0; line-height: 1; margin-right: 4px; }
+  .char-you.show { opacity: 1; animation: pop-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .char-rest { font-size: 16px; color: #cc1a1a; text-shadow: 0 0 8px rgba(200, 0, 0, 0.5); line-height: 1.2; }
+  .cursor { display: inline-block; width: 2px; height: 16px; background-color: #cc1a1a; margin-left: 2px; opacity: 0; }
+  .cursor.blink { animation: blink 0.8s infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  @keyframes pop-in { 0% { transform: scale(1.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+  /* ================= 第三幕：条款 ================= */
+  #act-3 {
+    position: fixed; inset: 0; z-index: 30; background: #030102;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    opacity: 0; pointer-events: none; transition: opacity 2s ease;
+  }
+  #act-3.show { opacity: 1; pointer-events: auto; }
+  #act-3::-webkit-scrollbar { display: none; }
+  #act-3 { scrollbar-width: none; }
+
+  .contract-scroll-wrapper { min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; }
+  .contract-content { width: 100%; max-width: 450px; color: #a38888; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; font-size: 14px; line-height: 1.8; position: relative; }
+  .fade-item { opacity: 0; transform: translateY(10px); transition: opacity 1s ease, transform 1s ease; }
+  .fade-item.show { opacity: 1; transform: translateY(0); }
+  .title-touch { color: #d1242f; font-size: 20px; font-weight: bold; letter-spacing: 2px; margin-bottom: 20px; }
+  .title-follow { color: #d1242f; font-size: 20px; font-weight: bold; letter-spacing: 2px; text-align: right; margin-top: 30px; margin-bottom: 20px; }
+  .text-left { text-align: left; }
+  .text-center { text-align: center; margin-top: 40px; color: #7a5c5c; font-size: 13px; letter-spacing: 1px; }
+  .symbol-red { color: #a32a30; margin-right: 5px; font-weight: bold; }
+  .indent { padding-left: 20px; color: #8a6e6e; }
+
+  /* ================= 第四幕：地狱低语 ================= */
+  #act-4 {
+    position: fixed; inset: 0; z-index: 40; background: #000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 2s ease;
+    padding: 20px;
+  }
+  #act-4.show { opacity: 1; pointer-events: auto; }
+  
+  .whisper-text {
+    max-width: 500px;
+    color: #c9b5b5;
+    font-size: clamp(16px, 4.5vw, 20px);
+    line-height: 2.2;
+    letter-spacing: 2px;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(150, 20, 20, 0.3);
+    opacity: 0;
+    transform: translateY(15px);
+    transition: opacity 1.5s ease, transform 1.5s ease;
+  }
+  .whisper-text.show { opacity: 1; transform: translateY(0); }
+
+  .options-container {
+    margin-top: 50px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap; /* 防止选项过多在小屏溢出 */
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1s ease;
+  }
+  .options-container.show { opacity: 1; pointer-events: auto; }
+  .option-btn {
+    padding: 8px 16px;
+    color: #a32a30;
+    border: 1px solid #4a151a;
+    background: rgba(50, 10, 10, 0.2);
+    border-radius: 4px;
+    font-size: 14px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .option-btn:hover {
+    background: rgba(100, 20, 20, 0.5);
+    color: #ff4d4d;
+    box-shadow: 0 0 15px rgba(200, 20, 20, 0.3);
+  }
+
+  /* ================= 第五幕：调查问卷 ================= */
+  #act-5 {
+    position: fixed; inset: 0; z-index: 50; background: #030102;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 2s ease;
+    padding: 20px;
+  }
+  #act-5.show { opacity: 1; pointer-events: auto; }
+
+  .survey-container {
+    width: 100%;
+    max-width: 400px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1.5s ease, transform 1.5s ease;
+  }
+  .survey-container.show { opacity: 1; transform: translateY(0); }
+  .survey-title { color: #d1242f; font-size: 22px; font-weight: bold; text-align: center; letter-spacing: 8px; margin-bottom: 30px; }
+  .survey-item { margin-bottom: 15px; color: #a38888; font-family: "PingFang SC", sans-serif; font-size: 15px; }
+  .survey-item input {
+    width: 100%; background: transparent; border: none; border-bottom: 1px solid #4a151a;
+    color: #e0d0d0; font-size: 15px; padding: 5px 0; margin-top: 5px; outline: none; font-family: inherit;
+  }
+  .survey-item input:focus { border-bottom: 1px solid #d1242f; }
+  .survey-hint { font-size: 12px; color: #663333; text-align: center; margin-top: 20px; letter-spacing: 1px; }
+  
+  .survey-next-btn {
+    display: block; width: 120px; margin: 30px auto 0; padding: 10px;
+    background: transparent; border: 1px solid #8a1515; color: #d1242f;
+    font-size: 16px; letter-spacing: 4px; text-align: center; cursor: pointer;
+    opacity: 0; pointer-events: none; transition: opacity 1s ease, background 0.3s;
+  }
+  .survey-next-btn.show { opacity: 1; pointer-events: auto; }
+  .survey-next-btn:hover { background: rgba(138, 21, 21, 0.2); }
+
+  /* ================= 第六幕：血契 ================= */
+  #act-6 {
+    position: fixed; inset: 0; z-index: 60; background: #000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 2s ease;
+    padding: 20px;
+  }
+  #act-6.show { opacity: 1; pointer-events: auto; }
+
+  .blood-contract-text {
+    color: #a38888; font-size: 18px; letter-spacing: 2px; text-align: center; margin-bottom: 20px;
+    opacity: 0; transform: scale(0.9); transition: all 2s ease;
+  }
+  .blood-contract-text.show { opacity: 1; transform: scale(1); }
+  .blood-title {
+    color: #d1242f; font-size: 32px; font-weight: bold; letter-spacing: 10px;
+    text-shadow: 0 0 15px rgba(200, 20, 20, 0.8); margin: 30px 0;
+    opacity: 0; transform: scale(1.2); transition: all 1.5s ease;
+  }
+  .blood-title.show { opacity: 1; transform: scale(1); }
+  .blood-options { display: flex; gap: 40px; opacity: 0; transition: opacity 1.5s ease; }
+  .blood-options.show { opacity: 1; }
+  .blood-options .option-btn { padding: 10px 30px; font-size: 18px; }
+
+  /* ================= 第七幕：话术展示 ================= */
+  #act-7 {
+    position: fixed; inset: 0; z-index: 70; background: #080505;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    opacity: 0; pointer-events: none; transition: opacity 2s ease;
+  }
+  #act-7.show { opacity: 1; pointer-events: auto; }
+  #act-7::-webkit-scrollbar { display: none; }
+  #act-7 { scrollbar-width: none; }
+
+  .act7-scroll-wrapper {
+    min-height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 60px 20px;
+  }
+
+  .hau-shu-content {
+    max-width: 600px;
+    color: #d4c8c8; /* 默认字体颜色 */
+    font-family: "Songti SC", "STSong", serif;
+    font-size: 15px;
+    line-height: 2.2;
+    letter-spacing: 1px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 2s ease, transform 2s ease;
+  }
+  .hau-shu-content.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .hau-shu-content p {
+    margin: 0 0 15px 0;
+    text-indent: -1em; 
+    padding-left: 1em;
+  }
+  .hau-shu-content span.dot {
+    color: #8a1515;
+    font-weight: bold;
+    margin-right: 6px;
+  }
+
+  /* 第七幕的返回按钮 */
+  .act7-back-btn {
+    display: block;
+    width: 100px;
+    margin: 40px auto 0;
+    padding: 8px 0;
+    text-align: center;
+    border: 1px solid #4a151a;
+    color: #a32a30;
+    font-size: 14px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    background: transparent;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1s ease, background 0.3s;
+  }
+  .act7-back-btn.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .act7-back-btn:hover {
+    background: rgba(100, 20, 20, 0.5);
+    color: #ff4d4d;
+  }
+
+  @media (max-width: 400px) {
+    .glowing-eye { width: 180px; height: 120px; }
+    .page-1 { font-size: 15px; }
+    .page-2 p { font-size: 13px; }
+    .char-you { font-size: 26px; }
+    .char-rest { font-size: 14px; }
+    .contract-content, .whisper-text { font-size: 13px; }
+    .hau-shu-content { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 第一幕 -->
+  <div id="act-1">
+    <div class="bg-image"></div>
+    <div class="bg-overlay"></div>
+    <div id="rain"></div>
+    <div id="center"><span class="char">妄</span><span class="char">欲</span></div>
+    <div id="contract-wrap">
+      <div id="contract-btn"><span class="part-1">签订</span><span class="part-2">契约</span><div class="progress-bar"></div></div>
+    </div>
+  </div>
+
+  <!-- 第二幕 -->
+  <div id="act-2">
+    <div class="book-container">
+      <div class="page page-3" id="page3">
+        <div class="eye-container">
+          <svg class="glowing-eye" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 10 60 Q 100 10 190 60" fill="none" stroke="#8a1515" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 10 60 Q 100 110 190 60" fill="none" stroke="#8a1515" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 15 60 Q 100 20 185 60 Q 100 100 15 60 Z" class="eye-white" />
+            <g class="pupil-group"><circle cx="100" cy="60" r="25" fill="#aa1c1c" /></g>
+          </svg>
+          <div class="reveal-text" id="typewriter-box">
+            <span class="char-you" id="char-you">你</span><span class="char-rest" id="char-rest"></span><span class="cursor" id="cursor"></span>
+          </div>
+        </div>
+      </div>
+      <div class="page page-2" id="page2">
+        <p><span>姓名：</span>斐殷</p><p><span>年龄：</span>19</p><p><span>人格：</span>INTJ</p>
+        <p><span>主风格：</span>温高 ‖ 引导 ‖ 狗1 ‖ 调情 ‖ 高擦</p>
+        <p><span>副风格：</span>剖析 ‖ 上位 ‖ 微血暴 ‖ 白骑</p>
+        <div class="hint">点击继续</div>
+      </div>
+      <div class="page page-1" id="page1">
+        <p>我看见你眼球<br>停留在我被欲求<br>浸泡得肿胀不堪的<br>皮肉里</p>
+        <div class="hint">点击翻页</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第三幕 -->
+  <div id="act-3">
+    <div class="contract-scroll-wrapper">
+      <div class="contract-content">
+        <div class="fade-item title-touch" id="t1">触碰我</div>
+        <div class="fade-item text-left" id="t2">
+          <span class="symbol-red">»</span> 斐殷-19-le-狮子-INTJ<br>
+          <span class="symbol-red">»</span> 在线时间:法定节假日<br>
+          <span class="symbol-red">»</span> 常驻:簇羽 猎人<br>
+          <span class="symbol-red">»</span> le 恋单婉拒男板
+        </div>
+        <div class="fade-item title-follow" id="t3">遵循我</div>
+        <div class="fade-item text-left" id="t4">
+          <span class="symbol-red">▪</span> le拒男板 下单则视为送单<br>
+          <span class="symbol-red">▪</span> 斐殷 水苍玉 矢聿都是我<br>
+          <div class="indent">任选爱称呼唤我即可</div><br>
+          <span class="symbol-red">▪</span> 此过程中有任何不适 请说出<br>
+          <div class="indent">“冷静点，斐殷”<br>我会调整状态</div><br>
+          <span class="symbol-red">▪</span> 典型病/非典型病<br>
+          <div class="indent">随机掉落</div>
+        </div>
+        <div class="fade-item text-center" id="t5">（下单默认已读）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第四幕：地狱低语 -->
+  <div id="act-4">
+    <div class="whisper-text" id="whisper-text">
+      没有你的地狱里充斥着爱 恨<br>
+      和从我身上剥离开的大片血肉<br>
+      我抓挠着脖颈<br>
+      泪水流经鲜血变成灼烧我皮肤的岩浆
+    </div>
+    <div class="options-container" id="act4-options">
+      <div class="option-btn" onclick="goToAct7(event)">话术</div>
+      <div class="option-btn" onclick="goToAct7(event)">板评</div>
+      <div class="option-btn" onclick="goToAct7(event)">卡类</div>
+      <div class="option-btn" onclick="goToAct5(event)">下一页</div>
+    </div>
+  </div>
+
+  <!-- 第五幕：调查问卷 -->
+  <div id="act-5">
+    <div class="survey-container" id="survey-container">
+      <div class="survey-title">调查</div>
+      <div class="survey-item">昵称：<input type="text" id="q-name"></div>
+      <div class="survey-item">喜点：<input type="text" id="q-like"></div>
+      <div class="survey-item">雷点：<input type="text" id="q-hate"></div>
+      <div class="survey-item">板方恋感程度（1-10）：<input type="number" min="1" max="10" id="q-score"></div>
+      <div class="survey-hint">（填写结束请发送小群）</div>
+      <div class="survey-next-btn" id="btn-next" onclick="goToAct6(event)">下一步</div>
+    </div>
+  </div>
+
+  <!-- 第六幕：血契 -->
+  <div id="act-6">
+    <div class="blood-contract-text" id="blood-text">被盯上后是必死的，但有一个例外</div>
+    <div class="blood-title" id="blood-title">血契</div>
+    <div class="blood-options" id="blood-options">
+      <div class="option-btn" onclick="alert('契约已生效，你逃不掉了。')">签订</div>
+      <div class="option-btn" onclick="alert('你拒绝了血契，但深渊已记住你的味道。')">拒绝</div>
+    </div>
+  </div>
+
+  <!-- 第七幕：话术展示 -->
+  <div id="act-7">
+    <div class="act7-scroll-wrapper">
+      <div class="hau-shu-content" id="hau-shu-content">
+        <p><span class="dot">·</span> 仰头面向天空时望着的会是谁呢</p>
+        <p><span class="dot">·</span> 说是我 但实际上那空中不止我一颗星星吧</p>
+        <p><span class="dot">·</span> 如果说对我那么看重 那么记念的话</p>
+        <p><span class="dot">·</span> 那还不如将心底那最柔软的地方一笔一划刻上我一个人的名字</p>
+        <p><span class="dot">·</span> 我怎么会推拒你的敏感 多疑呢 总归是我最爱的人了</p>
+        <p><span class="dot">·</span> 就算此刻下意识的对我作出防备 毫无征兆地将开刃的匕首刺进我的胸口 我也只会向你靠前一步 将刀刃跟你一起拥入怀中的</p>
+        <p><span class="dot">·</span> 说着我就该臣服 顺从 任人摆布 但我就是要一步一步朝你靠近 将你逼入毫无退路的角落 掐着你的脖颈 逼着你也来体会“任人摆布”的感觉 直至你要窒息的前一秒才松开手 看你大口喘息的模样</p>
+        <p><span class="dot">·</span> 我从胸腔里迸发的 全心全意的爱意 竟要在这个时候被你推开 这让我如何是好呢 也就只有扯紧你的发丝 将项圈的锁扣安紧 逼迫你吞咽下我这份爱意了^</p>
+        <p><span class="dot">·</span> 我这一生都只会跪服在您的脚下的 怎么说我也是您身边最忠诚的狗 不是吗 我永远在您身侧为您铲除一切觊觎您的“恶人” 只望您在我跪伏于您面前的时候 轻抚我的发旋 给予我应得的奖励</p>
+        <p><span class="dot">·</span> 您也说过了 我是一条“狗”啊 兽也是被欲望支配的一员 如果缠在您身边 依靠顺从 忠诚没有办法获得您的奖赏 连一个眼神也得不到 那我或许也会疯的 在您背后露出獠牙 在某一个冷落我的夜晚咬穿脖颈 任凭温热的血液充斥我的口腔</p>
+      </div>
+      <!-- 返回按钮 -->
+      <div class="act7-back-btn" id="act7-back" onclick="backToAct4(event)">返回</div>
+    </div>
+  </div>
+
+<script>
+// ================= 第一幕：字雨逻辑 =================
+(function () {
+  const rain  = document.getElementById('rain');
+  const WORDS = ["欲","食欲","爱欲","绝望","斗争","肉泥","眼睛","吃","血肉"];
+  const COL_W = 65;      
+  let cols = [];
+
+  function setupCols() {
+    const w = window.innerWidth;
+    const n = Math.max(1, Math.round(w / COL_W));
+    const step = w / n;
+    const now = performance.now();
+    cols = []; rain.innerHTML = '';
+
+    for (let i = 0; i < n; i++) {
+      const col = { x: Math.max(20, i * step + step / 2 + (Math.random() - 0.5) * step * 0.3), next: now };
+      cols.push(col); spawn(col, now, true);
+    }
+  }
+
+  function spawn(col, now, isInitial = false) {
+    const el = document.createElement('span');
+    el.className = 'drop';
+    el.textContent = WORDS[(Math.random() * WORDS.length) | 0];
+    el.style.left = col.x.toFixed(1) + 'px';
+    el.style.fontSize = (10 + Math.random() * 3).toFixed(1) + 'px';
+    const tone = Math.random();
+    if (tone < 0.4) { el.style.color = 'rgba(150, 50, 55, 0.8)'; }
+    else if (tone < 0.8) { el.style.color = 'rgba(110, 90, 90, 0.7)'; }
+    else { el.style.color = 'rgba(210, 180, 180, 0.65)'; }
+    
+    const dur = 6 + Math.random() * 4;          
+    el.style.animationDuration = dur.toFixed(2) + 's';
+
+    if (isInitial) el.style.animationDelay = '-' + (Math.random() * (dur - 1)) + 's';
+    
+    rain.appendChild(el);
+    el.addEventListener('animationend', function () { el.remove(); });
+
+    col.next = isInitial ? (now + 1000 + Math.random() * 2000) : (now + (dur * 1000) * 0.6 + Math.random() * 500); 
+  }
+
+  function tick(now) {
+    for (let i = 0; i < cols.length; i++) {
+      if (now >= cols[i].next) spawn(cols[i], now, false);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('resize', function () {
+    clearTimeout(window.rz); window.rz = setTimeout(setupCols, 200);
+  });
+
+  setupCols(); requestAnimationFrame(tick);
+})();
+
+// ================= 全局元素 =================
+const act1 = document.getElementById('act-1');
+const act2 = document.getElementById('act-2');
+const act3 = document.getElementById('act-3');
+const act4 = document.getElementById('act-4');
+const act5 = document.getElementById('act-5');
+const act6 = document.getElementById('act-6');
+const act7 = document.getElementById('act-7');
+
+// ================= 第一幕：长按契约 =================
+const contractWrap = document.getElementById('contract-wrap');
+const contractBtn = document.getElementById('contract-btn');
+const progressBar = document.querySelector('.progress-bar');
+const part1 = document.querySelector('.part-1');
+const part2 = document.querySelector('.part-2');
+
+setTimeout(() => contractWrap.classList.add('show'), 3500);
+let pressTimer = null, rafId = null, pressStartTime = 0;
+const PRESS_DURATION = 800;
+
+function startPress(e) {
+  if(e.cancelable) e.preventDefault(); 
+  if (contractBtn.classList.contains('success')) return;
+  contractBtn.classList.add('pressing');
+  pressStartTime = Date.now();
+  progressBar.style.transition = 'none';
+  progressBar.style.width = '0%';
+  
+  function updateProgress() {
+    if (!contractBtn.classList.contains('pressing')) return;
+    let percent = Math.min(((Date.now() - pressStartTime) / PRESS_DURATION) * 100, 100);
+    progressBar.style.width = percent + '%';
+    if (percent < 100) rafId = requestAnimationFrame(updateProgress);
+  }
+  rafId = requestAnimationFrame(updateProgress);
+  pressTimer = setTimeout(() => { endPress(); confirmContract(); }, PRESS_DURATION);
+}
+
+function endPress() {
+  clearTimeout(pressTimer);
+  cancelAnimationFrame(rafId);
+  if (!contractBtn.classList.contains('success')) {
+    contractBtn.classList.remove('pressing');
+    progressBar.style.transition = 'width 0.3s ease';
+    progressBar.style.width = '0%';
+  }
+}
+
+function confirmContract() {
+  contractBtn.classList.remove('pressing');
+  contractBtn.classList.add('success');
+  progressBar.style.width = '100%';
+  progressBar.style.opacity = '0';
+  part1.innerText = '契约';
+  part2.innerText = '已定';
+  
+  const flash = document.createElement('div');
+  flash.className = 'red-flash';
+  document.body.appendChild(flash);
+  setTimeout(() => flash.remove(), 1000);
+
+  setTimeout(() => {
+    act1.classList.add('fade-out'); 
+    setTimeout(() => { act2.classList.add('show'); }, 1000); 
+  }, 1500); 
+}
+
+contractBtn.addEventListener('mousedown', startPress);
+contractBtn.addEventListener('touchstart', startPress, {passive: false});
+contractBtn.addEventListener('mouseup', endPress);
+contractBtn.addEventListener('mouseleave', endPress);
+contractBtn.addEventListener('touchend', endPress);
+contractBtn.addEventListener('touchcancel', endPress);
+
+// ================= 第二幕：翻书 =================
+const page1 = document.getElementById('page1');
+const page2 = document.getElementById('page2');
+const page3 = document.getElementById('page3');
+
+page1.addEventListener('click', function() {
+  if (!this.classList.contains('flipped-page')) {
+    this.classList.add('flipped-page');
+    page2.classList.add('flipped');
+    this.querySelector('.hint').innerText = '';
+  }
+});
+
+page2.addEventListener('click', function() {
+  if (this.classList.contains('flipped') && !this.classList.contains('flipped-page')) {
+    this.classList.add('flipped-page');
+    page3.classList.add('flipped');
+    this.querySelector('.hint').innerText = '';
+    startTypewriter();
+  }
+});
+
+// ================= 第三幕与打字机 =================
+let canClickForAct3 = false;
+function startTypewriter() {
+  const charYou = document.getElementById('char-you');
+  const charRest = document.getElementById('char-rest');
+  const cursor = document.getElementById('cursor');
+  const textRest = "被发现了";
+  let i = 0;
+
+  setTimeout(() => {
+    charYou.classList.add('show');
+    cursor.classList.add('blink');
+    const timer = setInterval(() => {
+      if (i < textRest.length) {
+        charRest.textContent += textRest.charAt(i);
+        i++;
+      } else {
+        clearInterval(timer);
+        setTimeout(() => {
+          cursor.classList.remove('blink');
+          canClickForAct3 = true; 
+        }, 2000);
+      }
+    }, 100); 
+  }, 1000); 
+}
+
+document.addEventListener('click', function(e) {
+  if (canClickForAct3 && !act3.classList.contains('show')) {
+    canClickForAct3 = false; 
+    act2.style.opacity = '0';
+    setTimeout(() => { act2.style.display = 'none'; }, 2000);
+    act3.classList.add('show');
+    
+    const t1 = document.getElementById('t1'), t2 = document.getElementById('t2');
+    const t3 = document.getElementById('t3'), t4 = document.getElementById('t4'), t5 = document.getElementById('t5');
+    setTimeout(() => t1.classList.add('show'), 800);
+    setTimeout(() => t2.classList.add('show'), 2000);
+    setTimeout(() => t3.classList.add('show'), 3500);
+    setTimeout(() => t4.classList.add('show'), 4800);
+    setTimeout(() => t5.classList.add('show'), 6500);
+
+    setTimeout(() => { allowClickToAct4 = true; }, 8000);
+  }
+});
+
+// ================= 第四幕 =================
+let allowClickToAct4 = false;
+
+document.addEventListener('click', function(e) {
+  if (allowClickToAct4 && act3.classList.contains('show') && !e.target.classList.contains('option-btn')) {
+    allowClickToAct4 = false;
+    act3.classList.remove('show');
+    setTimeout(() => { act3.style.display = 'none'; }, 2000);
+    
+    act4.classList.add('show');
+    
+    setTimeout(() => {
+      document.getElementById('whisper-text').classList.add('show');
+    }, 500);
+    
+    setTimeout(() => {
+      document.getElementById('act4-options').classList.add('show');
+    }, 3500);
+  }
+});
+
+// ================= 第七幕：话术跳转与返回 =================
+function goToAct7(e) {
+  if(e) e.stopPropagation(); 
+  
+  act4.classList.remove('show');
+  setTimeout(() => { act4.style.display = 'none'; }, 2000);
+  
+  act7.classList.add('show');
+  
+  setTimeout(() => {
+    document.getElementById('hau-shu-content').classList.add('show');
+  }, 1000);
+  
+  setTimeout(() => {
+    document.getElementById('act7-back').classList.add('show');
+  }, 4000);
+}
+
+function backToAct4(e) {
+  if(e) e.stopPropagation();
+  
+  act7.classList.remove('show');
+  
+  document.getElementById('act7-back').classList.remove('show');
+  document.getElementById('hau-shu-content').classList.remove('show');
+
+  setTimeout(() => { 
+    act7.style.display = 'none'; 
+    
+    act4.style.display = 'flex';
+    setTimeout(() => {
+      act4.classList.add('show');
+      document.getElementById('whisper-text').classList.add('show');
+      document.getElementById('act4-options').classList.add('show');
+    }, 50);
+  }, 2000);
+}
+
+// ================= 下一页：跳转第五幕 =================
+function goToAct5(e) {
+  if(e) e.stopPropagation();
+  
+  act4.classList.remove('show');
+  setTimeout(() => { act4.style.display = 'none'; }, 2000);
+  
+  act5.classList.add('show');
+  setTimeout(() => {
+    document.getElementById('survey-container').classList.add('show');
+    setTimeout(() => {
+      document.getElementById('btn-next').classList.add('show');
+    }, 1500);
+  }, 1000);
+}
+
+// ================= 第五幕 -> 第六幕 =================
+function goToAct6(e) {
+  if(e) e.stopPropagation();
+  
+  act5.classList.remove('show');
+  setTimeout(() => { act5.style.display = 'none'; }, 2000);
+  
+  act6.classList.add('show');
+  
+  setTimeout(() => { document.getElementById('blood-text').classList.add('show'); }, 800);
+  setTimeout(() => { document.getElementById('blood-title').classList.add('show'); }, 3000);
+  setTimeout(() => { document.getElementById('blood-options').classList.add('show'); }, 5000);
+}
+</script>
+</body>
+      </html>
